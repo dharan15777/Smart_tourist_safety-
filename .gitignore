@@ -1,10 +1,29 @@
-node_modules/
-.env
-.env.*
-coverage/
-*.log
-.DS_Store
+# Python
+venv/
 __pycache__/
 *.pyc
+*.pyo
+.env
+
+# Node
+node_modules/
+npm-debug.log
+
+# Build
 build/
 dist/
+.next/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# MongoDB
+data/
+
+# Package locks (optional)
+# package-lock.json
