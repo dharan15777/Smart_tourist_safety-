@@ -10,9 +10,6 @@ const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } 
 app.use(express.json());
 app.use(cors({ origin: '*' }));
 app.set('io', io);
-io.on('connection', (socket) => {
-  socket.on('disconnect', () => console.log('❌ Client disconnected'));
-});
 const addSampleZones = async () => {
   try {
     const RiskZone = require('./models/RiskZone');
@@ -24,9 +21,9 @@ const addSampleZones = async () => {
         { name: 'Border Restricted Zone', riskLevel: 'restricted', center: { lat: 27.3516, lng: 91.9874 }, radius: 5, description: 'Border area', state: 'Arunachal Pradesh' },
         { name: 'Shillong Peak Area', riskLevel: 'moderate', center: { lat: 25.5788, lng: 91.8933 }, radius: 1, description: 'High altitude area', state: 'Meghalaya' }
       ]);
-      console.log('✅ Sample risk zones added');
+      console.log('✅ Risk zones added to Cloud MongoDB');
     } else {
-      console.log('✅ ' + count + ' risk zones already in MongoDB');
+      console.log('✅ ' + count + ' risk zones already in Cloud MongoDB');
     }
   } catch (error) {
     console.log('Zones error:', error.message);
@@ -34,12 +31,13 @@ const addSampleZones = async () => {
 };
 const startServer = async () => {
   try {
-    await mongoose.connect('mongodb://localhost:27017/tourist_safety');
-    console.log('✅ Tracking Service - MongoDB Connected');
+    const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tourist_safety';
+    await mongoose.connect(MONGODB_URI);
+    console.log('✅ Tracking Service - Cloud MongoDB Connected');
     await addSampleZones();
     app.use('/api/tracking', require('./routes/trackingRoutes'));
-    app.get('/health', (req, res) => res.json({ status: 'OK', service: 'Tracking Service', database: 'MongoDB', timestamp: new Date().toISOString() }));
-    const PORT = 3005;
+    app.get('/health', (req, res) => res.json({ status: 'OK', service: 'Tracking Service', database: 'Cloud MongoDB', timestamp: new Date().toISOString() }));
+    const PORT = process.env.PORT || 3005;
     server.listen(PORT, () => console.log('🚀 Tracking Service running on port ' + PORT));
   } catch (error) {
     console.error('❌ Server start error:', error.message);
